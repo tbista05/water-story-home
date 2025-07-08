@@ -1,16 +1,16 @@
-import * as express from "express";
-import * as cors from "cors";
+import express, { Request, Response } from "express";
+import cors from "cors";
 
 const app = express();
 const PORT = 3001;
 
 app.use(cors()); // Important for frontend-backend communication
 
-app.get("/", (_req, res) => {
+app.get("/", (_req: Request, res: Response) => {
   res.send("🌊 Lake Erie API is running!");
 });
 
-app.get("/api/mock-data", (_req, res) => {
+app.get("/api/mock-data", (_req: Request, res: Response) => {
   res.json({
     nutrients: "high",
     phosphorus: 2.1,

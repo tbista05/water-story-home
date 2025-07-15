@@ -1,24 +1,40 @@
 'use client';
 
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, Circle, Popup } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
+import { useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 
-const lakeErieCenter: LatLngExpression = [41.7, -82.6];
+type Bloom = {
+  lat: number;
+  lng: number;
+  intensity: 'low' | 'moderate' | 'high';
+};
 
-const dummyBloomLocations = [
-  { lat: 41.7, lng: -83.3, intensity: 'high' },
-  { lat: 41.9, lng: -82.0, intensity: 'moderate' },
-];
+type HABMapProps = {
+  center: LatLngExpression;
+  bloomLocations: Bloom[];
+};
 
-export default function LakeErieMap() {
+// Component to trigger map recentering when props.center changes
+function ChangeView({ center }: { center: LatLngExpression }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center);
+  }, [center, map]);
+  return null;
+}
+
+export default function HABMap({ center, bloomLocations }: HABMapProps) {
   return (
-    <MapContainer center={lakeErieCenter} zoom={7} style={{ height: '500px', width: '100%' }}>
+    <MapContainer center={center} zoom={7} style={{ height: '500px', width: '100%' }}>
+      <ChangeView center={center}/>
       <TileLayer
         attribution='Map data © OpenStreetMap contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {dummyBloomLocations.map((bloom, i) => (
+      {bloomLocations.map((bloom, i) => (
         <Circle
           key={i}
           center={[bloom.lat, bloom.lng]}

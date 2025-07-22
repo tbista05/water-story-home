@@ -2,69 +2,74 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { locations } from "../lib/lakeData";
 
-// Dynamically import the map component *only on the client*
-const HABMap = dynamic(() => import("@/components/HABMap"), {
+// Dynamically import the map component only on client
+const LakeMap = dynamic(() => import("@/components/LakeMap"), {
   ssr: false,
 });
 
-const locations = {
-  lakeErie : {
-    center: [41.7, -82.6] as [number, number],
-    blooms : [
-      { lat: 41.7, lng: -83.3, intensity: 'high' as const },
-      { lat: 41.9, lng: -82.0, intensity: 'moderate' as const },
-    ],
-  },
-
-  saginawBay : {
-    center: [43.7, -83.6] as [number, number],
-    blooms : [
-      { lat: 43.8, lng: -83.5, intensity: 'moderate' as const },
-      { lat: 43.6, lng: -83.7, intensity: 'low' as const },
-    ],
-  },
-}
+type Region = keyof typeof locations;
+type Layer = 'habs' | 'buoys';
 
 export default function Home() {
-  const [data, setData] = useState<any>(null);
-  const [selectedRegion, setSelectedRegion] = useState<'lakeErie' | 'saginawBay'>('lakeErie');
+  const [selectedRegion, setSelectedRegion] = useState<Region>('erie');
+  const [activeLayer, setActiveLayer] = useState<Layer>('habs');
+  const [buoys, setBuoys] = useState<any[]>([]);
+
   const current = locations[selectedRegion];
 
-return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">🌊 Lake Erie Dashboard</h1>
+  // 🚀 Fetch buoy list (placeholder — can later be real API or different per region)
+  useEffect(() => {
+  fetch("http://localhost:3001/api/buoys")
+    .then(res => res.json())
+    .then(data => {
+      const filtered = data.filter((b: any) => b.lake === selectedRegion);
+      setBuoys(filtered);
+    })
+    .catch(err => console.error("Failed to load buoy data", err));
+}, [selectedRegion]);
 
-      {/* Region toggle */}
+  return (
+    <main className="p-6 space-y-8">
+      <h1 className="text-2xl font-bold mb-4">🌊 WaterStory Dashboard</h1>
+
+      {/* 🌐 Region toggle */}
+      <div className="mb-4 space-x-2">
+        {Object.entries(locations).map(([key, value]) => (
+          <button
+            key={key}
+            onClick={() => setSelectedRegion(key as Region)}
+            className={`px-4 py-2 rounded ${selectedRegion === key ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          >
+            {key.charAt(0).toUpperCase() + key.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* 🗂 Layer toggle */}
       <div className="mb-4 space-x-2">
         <button
-          onClick={() => setSelectedRegion('lakeErie')}
-          className={`px-4 py-2 rounded ${selectedRegion === 'lakeErie' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveLayer('habs')}
+          className={`px-4 py-2 rounded ${activeLayer === 'habs' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
         >
-          Lake Erie
+          Show HABs
         </button>
         <button
-          onClick={() => setSelectedRegion('saginawBay')}
-          className={`px-4 py-2 rounded ${selectedRegion === 'saginawBay' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveLayer('buoys')}
+          className={`px-4 py-2 rounded ${activeLayer === 'buoys' ? 'bg-yellow-600 text-white' : 'bg-gray-200'}`}
         >
-          Saginaw Bay
+          Show Buoys
         </button>
       </div>
 
       {/* 🗺️ Map Display */}
-      <HABMap center={current.center} bloomLocations={current.blooms} />
+      <LakeMap
+        center={current.center}
+        habs={current.blooms}
+        buoys={buoys}
+        activeLayer={activeLayer}
+      />
     </main>
   );
 }
-
-//   return (
-//     <main className="p-6">
-//       <h1 className="text-2xl font-bold">🌊 Lake Erie Dashboard</h1>
-//       {data ? (
-//         <pre className="mt-4 bg-gray-100 p-4 rounded">{JSON.stringify(data, null, 2)}</pre>
-//       ) : (
-//         <p>Loading data from backend...</p>
-//       )}
-//     </main>
-//   );
-// }

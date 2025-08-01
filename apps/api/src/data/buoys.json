@@ -1,22 +1,30 @@
 [
-  { "id": "45005", "lat": 41.677, "lng": -82.398, "lake": "erie" },
-  { "id": "45006", "lat": 45.343, "lng": -86.417, "lake": "superior" },
-  { "id": "45007", "lat": 43.621, "lng": -82.411, "lake": "huron" },
-  { "id": "45008", "lat": 42.675, "lng": -87.058, "lake": "michigan" },
-  { "id": "45012", "lat": 43.613, "lng": -76.223, "lake": "ontario" },
-  { "id": "45013", "lat": 43.091, "lng": -87.860, "lake": "michigan" },
-  { "id": "45014", "lat": 44.645, "lng": -87.383, "lake": "michigan" },
-  { "id": "45018", "lat": 42.694, "lng": -79.355, "lake": "erie" },
-  { "id": "45023", "lat": 47.456, "lng": -87.789, "lake": "superior" },
-  { "id": "45024", "lat": 43.944, "lng": -86.408, "lake": "michigan" },
-  { "id": "45026", "lat": 41.987, "lng": -86.571, "lake": "michigan" },
-  { "id": "45027", "lat": 46.775, "lng": -92.103, "lake": "superior" },
-  { "id": "45029", "lat": 42.765, "lng": -86.240, "lake": "michigan" },
+  
+  { "id": "45005", "lat": 41.677, "lng": -82.398, "lake": "erie" }, 
   { "id": "45132", "lat": 42.656, "lng": -81.200, "lake": "erie" },
-  { "id": "45136", "lat": 48.667, "lng": -87.500, "lake": "superior" },
-  { "id": "45137", "lat": 45.556, "lng": -81.222, "lake": "huron" },
-  { "id": "45139", "lat": 43.200, "lng": -79.560, "lake": "ontario" },
   { "id": "45142", "lat": 42.883, "lng": -79.250, "lake": "erie" },
   { "id": "45147", "lat": 42.410, "lng": -82.670, "lake": "erie" },
-  { "id": "45149", "lat": 44.280, "lng": -82.416, "lake": "huron" }
+
+  { "id": "45003", "lat": 45.351, "lng": -82.840, "lake": "huron" },
+  { "id": "45007", "lat": 43.621, "lng": -82.411, "lake": "huron" },
+  { "id": "45137", "lat": 45.556, "lng": -81.222, "lake": "huron" },
+  { "id": "45149", "lat": 44.280, "lng": -82.416, "lake": "huron" },
+  
+  { "id": "45002", "lat": 45.344, "lng": -86.411, "lake": "michigan" },
+  { "id": "45008", "lat": 42.675, "lng": -87.058, "lake": "michigan" },
+  { "id": "45013", "lat": 43.091, "lng": -87.860, "lake": "michigan" },
+  { "id": "45014", "lat": 44.645, "lng": -87.383, "lake": "michigan" },
+  { "id": "45024", "lat": 43.944, "lng": -86.408, "lake": "michigan" },
+  { "id": "45026", "lat": 41.987, "lng": -86.571, "lake": "michigan" },
+  { "id": "45029", "lat": 42.765, "lng": -86.240, "lake": "michigan" },
+
+  { "id": "45012", "lat": 43.613, "lng": -76.223, "lake": "ontario" },
+  { "id": "45139", "lat": 43.200, "lng": -79.560, "lake": "ontario" },
+
+  { "id": "45001", "lat": 48.061, "lng": -87.793, "lake": "superior" },
+  { "id": "45004", "lat": 47.585, "lng": -86.585, "lake": "superior" },
+  { "id": "45006", "lat": 45.343, "lng": -86.417, "lake": "superior" },
+  { "id": "45023", "lat": 47.456, "lng": -87.789, "lake": "superior" },
+  { "id": "45027", "lat": 46.775, "lng": -92.103, "lake": "superior" },
+  { "id": "45136", "lat": 48.667, "lng": -87.500, "lake": "superior" }
 ]

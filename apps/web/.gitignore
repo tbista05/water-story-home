@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore all chlorophyll data
+apps/api/src/data/**/*.json
+!apps/api/src/data/buoys.json  

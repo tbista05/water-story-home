@@ -188,11 +188,12 @@ return (
             <h1 className="text-xl font-semibold text-gray-900">WaterStory Dashboard</h1>
           </div>
 
+          {/* NAV DISABLED FOR SHOWCASE: no clickable links */}
           <nav className="hidden md:flex space-x-8">
-            <a href="#" className="text-blue-600 font-medium">Overview</a>
-            <Link href="/alerts" className="text-gray-500 hover:text-gray-900">Alerts and Announcements</Link> {/* Changed href */}
-            <Link href="/forecasts" className="text-gray-500 hover:text-gray-900">Forecasts</Link> {/* Also change these if they will be pages */}
-            <Link href="/historical-data" className="text-gray-500 hover:text-gray-900">Historical Data</Link> {/* Also change these if they will be pages */}
+            <span className="text-blue-600 font-medium cursor-default select-none">Overview</span>
+            <span className="text-gray-400 cursor-not-allowed select-none" title="Coming soon">Alerts and Announcements</span>
+            <span className="text-gray-400 cursor-not-allowed select-none" title="Coming soon">Forecasts</span>
+            <span className="text-gray-400 cursor-not-allowed select-none" title="Coming soon">Historical Data</span>
           </nav>
 
           <div className="flex items-center space-x-3">
@@ -407,4 +408,5 @@ return (
       </div>
     </footer>
   </div>
-);}
+);
+}

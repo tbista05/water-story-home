@@ -1,40 +1,31 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge"; // optional, but keeps it tiny
 
-export async function GET(_req: Request, ctx: any) {
-  // 👇 pull params from the untyped context and cast locally
+export async function GET(req: Request, ctx: any) {
   const { region, yearMonth } = ctx.params as { region: string; yearMonth: string };
   const lake = region.toLowerCase();
 
   // Validate YYYY-MM (01–12)
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(yearMonth)) {
-    return NextResponse.json(
-      { error: "Invalid yearMonth format. Expected YYYY-MM." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid yearMonth format. Expected YYYY-MM." }, { status: 400 });
   }
 
-  const filePath = path.join(process.cwd(), "src", "data", lake, `${yearMonth}.json`);
+  // Fetch the static asset from /public/data
+  const url = new URL(`/data/${lake}/${yearMonth}.json`, req.url);
+  const res = await fetch(url.toString(), { cache: "no-store" });
 
-  try {
-    const raw = await fs.readFile(filePath, "utf8"); // throws ENOENT if missing
-    const parsed: Array<{ lat: number; lng: number; value: number }> = JSON.parse(raw);
-    const filtered = parsed.filter((dp) => Number.isFinite(dp?.value));
-    return NextResponse.json(filtered, { status: 200 });
-  } catch (e: any) {
-    if (e?.code === "ENOENT") {
-      return NextResponse.json(
-        { message: `Chlorophyll data not found for ${lake} in ${yearMonth}.` },
-        { status: 404 }
-      );
-    }
-    console.error("[api/chlorophyll] Unexpected error:", e);
-    return NextResponse.json(
-      { message: "Internal server error fetching chlorophyll data." },
-      { status: 500 }
-    );
+  if (res.status === 404) {
+    return NextResponse.json({ message: `Chlorophyll data not found for ${lake} in ${yearMonth}.` }, { status: 404 });
   }
+  if (!res.ok) {
+    return NextResponse.json({ message: `Upstream error ${res.status}` }, { status: res.status });
+  }
+
+  const parsed = (await res.json()) as Array<{ lat: number; lng: number; value: number }>;
+  const filtered = parsed.filter((dp) => Number.isFinite(dp?.value));
+
+  return NextResponse.json(filtered, { status: 200 });
 }
+

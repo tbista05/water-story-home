@@ -1,21 +1,14 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 
-export const dynamic = "force-dynamic";        // ensure serverless, no static caching
-// export const revalidate = 0;                 // optional: also disables ISR
+export const dynamic = "force-dynamic";
+export const runtime = "edge"; // optional
 
 type BuoyEntry = { id: string; lake: string; lat: number; lng: number };
 
-const BUOYS_FILE = path.join(process.cwd(), "src", "data", "buoys.json");
-
-// Fetch NOAA buoy data
 async function fetchBuoyData(station: string) {
   const url = `https://www.ndbc.noaa.gov/data/realtime2/${station}.txt`;
-
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    const text = await res.text();
+    const text = await fetch(url, { cache: "no-store" }).then((r) => r.text());
     const lines = text.trim().split("\n");
     if (lines.length < 2) return null;
 
@@ -29,7 +22,6 @@ async function fetchBuoyData(station: string) {
     const wtmp = iWTMP >= 0 ? parseFloat(latest[iWTMP]) : NaN;
     const wspd = iWSPD >= 0 ? parseFloat(latest[iWSPD]) : NaN;
     const wvht = iWVHT >= 0 ? parseFloat(latest[iWVHT]) : NaN;
-
     const fahrenheit = Number.isNaN(wtmp) ? null : (wtmp * 9) / 5 + 32;
 
     return {
@@ -44,21 +36,21 @@ async function fetchBuoyData(station: string) {
   }
 }
 
-export async function GET() {
-  try {
-    const raw = await fs.readFile(BUOYS_FILE, "utf-8");
-    const buoys: BuoyEntry[] = JSON.parse(raw);
-
-    const results = await Promise.all(
-      buoys.map(async (buoy) => {
-        const liveData = await fetchBuoyData(buoy.id);
-        return liveData ? { ...buoy, ...liveData } : { ...buoy, error: "No live data" };
-      })
-    );
-
-    return NextResponse.json(results);
-  } catch (err) {
-    console.error("[api/buoys] error:", err);
-    return NextResponse.json({ error: "Failed to load buoy list" }, { status: 500 });
+export async function GET(req: Request) {
+  // Load buoys list from static asset
+  const listUrl = new URL("/data/buoys.json", req.url);
+  const listRes = await fetch(listUrl.toString(), { cache: "no-store" });
+  if (!listRes.ok) {
+    return NextResponse.json({ error: "Failed to load buoy list" }, { status: listRes.status });
   }
+  const buoys = (await listRes.json()) as BuoyEntry[];
+
+  const results = await Promise.all(
+    buoys.map(async (b) => {
+      const live = await fetchBuoyData(b.id);
+      return live ? { ...b, ...live } : { ...b, error: "No live data" };
+    })
+  );
+
+  return NextResponse.json(results);
 }

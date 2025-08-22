@@ -110,42 +110,41 @@ export default function Home() {
       });
   }, [selectedRegion]);
 
-  // Fetch CHLOROPHYLL data (for 'habs' layer)
-  useEffect(() => {
-    setLoadingChlorophyll(true);
-    setErrorChlorophyll(null);
+// Fetch CHLOROPHYLL data (for 'habs' layer)
+useEffect(() => {
+  setLoadingChlorophyll(true);
+  setErrorChlorophyll(null);
 
-    if (!selectedRegion || !selectedYearMonth) {
-      setLoadingChlorophyll(false);
-      return;
-    }
+  if (!selectedRegion || !selectedYearMonth) {
+    setLoadingChlorophyll(false);
+    return;
+  }
 
-    const chlorophyllApiUrl = `/api/chlorophyll/${selectedRegion}/${selectedYearMonth}`;
-    
-    fetch(chlorophyllApiUrl, { cache: 'no-store' })
-      .then(res => {
-        if (!res.ok) {
-          if (res.status === 404) {
-            throw new Error(`Chlorophyll data for "${selectedRegion}" in ${selectedYearMonth} not found.`);
-          }
-          throw new Error(`HTTP error! status: ${res.status}`);
+  const region = selectedRegion.toLowerCase(); // folders are lowercase
+  const chlorophyllUrl = `/data/${region}/${selectedYearMonth}.json`;
+
+  fetch(chlorophyllUrl, { cache: 'no-store' })
+    .then((res) => {
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error(`Chlorophyll data for "${region}" in ${selectedYearMonth} not found.`);
         }
-        return res.json() as Promise<ChlorophyllDataPoint[]>;
-      })
-      .then((data) => {
-        const sampleRate = 20;
-        const sampledData = data.filter((_, index) => index % sampleRate === 0);
-        setChlorophyllData(sampledData);
-      })
-      .catch(err => {
-        console.error("Failed to load chlorophyll data", err);
-        setErrorChlorophyll(err.message || "Failed to load chlorophyll data.");
-        setChlorophyllData([]);
-      })
-      .finally(() => {
-        setLoadingChlorophyll(false);
-      });
-  }, [selectedRegion, selectedYearMonth]);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json() as Promise<ChlorophyllDataPoint[]>;
+    })
+    .then((data) => {
+      const sampleRate = 20;
+      setChlorophyllData(data.filter((_, i) => i % sampleRate === 0));
+    })
+    .catch((err) => {
+      console.error("Failed to load chlorophyll data", err);
+      setErrorChlorophyll(err.message || "Failed to load chlorophyll data.");
+      setChlorophyllData([]);
+    })
+    .finally(() => setLoadingChlorophyll(false));
+}, [selectedRegion, selectedYearMonth]);
+
 
   const handleYearMonthChange = (yearMonth: string) => {
     setSelectedYearMonth(yearMonth);

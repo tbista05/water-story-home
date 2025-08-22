@@ -96,7 +96,7 @@ export default function Home() {
     setLoadingExistingBuoys(true);
     setErrorExistingBuoys(null);
     setSelectedBuoy(null);
-    fetch("http://localhost:3001/api/buoys")
+    fetch("/api/buoys")
       .then(res => res.json())
       .then((data: any[]) => { // Cast to any[] temporarily if structure is truly unknown before filtering
         const filtered = data.filter((b: any) => b.lake === selectedRegion);
@@ -123,7 +123,7 @@ export default function Home() {
       return;
     }
 
-    const chlorophyllApiUrl = `http://localhost:3001/api/chlorophyll/${selectedRegion}/${selectedYearMonth}`;
+    const chlorophyllApiUrl = `/api/chlorophyll/${selectedRegion}/${selectedYearMonth}`;
     
     fetch(chlorophyllApiUrl)
       .then(res => {

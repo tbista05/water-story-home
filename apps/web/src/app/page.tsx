@@ -85,30 +85,38 @@ export default function Home() {
   const allAvailableDates = useMemo(() => generateMonthlyDates(2018, 5, 2024, 5), []);
   const [selectedYearMonth, setSelectedYearMonth] = useState<string>(allAvailableDates[0]);
 
-  // Fetch buoy list 
-  useEffect(() => {
-    setLoadingExistingBuoys(true);
-    setErrorExistingBuoys(null);
-    setSelectedBuoy(null);
+// Fetch buoy list 
+useEffect(() => {
+  setLoadingExistingBuoys(true);
+  setErrorExistingBuoys(null);
+  setSelectedBuoy(null);
 
-    fetch("/api/buoys", { cache: 'no-store' })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<ExistingBuoy[]>;
-      })
-      .then((data) => {
-        const filtered = data.filter((b) => b.lake === selectedRegion);
-        setExistingBuoys(filtered);
-      })
-      .catch(err => {
-        console.error("Failed to load existing buoy data", err);
-        setErrorExistingBuoys("Failed to load existing buoy data.");
-        setExistingBuoys([]);
-      })
-      .finally(() => {
-        setLoadingExistingBuoys(false);
+  const region = selectedRegion.toLowerCase(); // folders/names are lowercase
+  fetch("/data/buoys.json", { cache: "no-store" })
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json() as Promise<ExistingBuoy[] | Array<Record<string, any>>>;
+    })
+    .then((data) => {
+      // handle files with or without a `lake` property
+      const arr = Array.isArray(data) ? data : [];
+      const filtered = arr.filter((b: any) => {
+        const lake = (b.lake ?? b.LAKE ?? b.lakeName ?? "").toString().toLowerCase();
+        return lake ? lake === region : true; // if no lake field, keep it
       });
-  }, [selectedRegion]);
+      setExistingBuoys(filtered as ExistingBuoy[]);
+    })
+    .catch((err) => {
+      console.error("Failed to load buoy list", err);
+      setErrorExistingBuoys("Failed to load existing buoy data.");
+      setExistingBuoys([]);
+    })
+    .finally(() => {
+      setLoadingExistingBuoys(false);
+    });
+}, [selectedRegion]);
+
+
 
 // Fetch CHLOROPHYLL data (for 'habs' layer)
 useEffect(() => {
